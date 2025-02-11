@@ -1,10 +1,11 @@
+// src/App.tsx
 import {
   BellIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   DeleteIcon,
-  EditIcon,
-} from '@chakra-ui/icons';
+  EditIcon, RepeatIcon
+} from "@chakra-ui/icons";
 import {
   Alert,
   AlertDialog,
@@ -38,7 +39,7 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
@@ -56,6 +57,7 @@ import {
 } from './utils/dateUtils';
 import { findOverlappingEvents } from './utils/eventOverlap';
 import { getTimeErrorMessage } from './utils/timeValidation';
+import { adjustRepeatDate } from "./utils/repeatDateUtils.ts";
 
 const categories = ['업무', '개인', '가족', '기타'];
 
@@ -137,7 +139,6 @@ function App() {
       });
       return;
     }
-
     const eventData: Event | EventForm = {
       id: editingEvent ? editingEvent.id : undefined,
       title,
@@ -150,7 +151,7 @@ function App() {
       repeat: {
         type: isRepeating ? repeatType : 'none',
         interval: repeatInterval,
-        endDate: repeatEndDate || undefined,
+        endDate: repeatEndDate || new Date("2025-06-30T00:00:00+09:00"),
       },
       notificationTime,
     };
@@ -162,6 +163,27 @@ function App() {
     } else {
       await saveEvent(eventData);
       resetForm();
+    }
+  };
+  
+  // RepeatType 선택 관련 부분 수정
+  const handleRepeatTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newRepeatType = e.target.value as RepeatType;
+    setRepeatType(newRepeatType);
+    
+    // 날짜 자동 조정
+    if (date && (newRepeatType === 'monthly' || newRepeatType === 'yearly')) {
+      const adjustedDate = adjustRepeatDate(date, newRepeatType);
+      if (adjustedDate !== date) {
+        setDate(adjustedDate);
+        toast({
+          title: '날짜 자동 조정',
+          description: '반복 일정의 특성에 맞게 날짜가 조정되었습니다.',
+          status: 'info',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     }
   };
 
@@ -201,6 +223,7 @@ function App() {
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
+                            {(event.repeat.id ) && (<RepeatIcon />)}
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
                             </Text>
@@ -270,6 +293,7 @@ function App() {
                               >
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
+                                  {(event.repeat.id ) && (<RepeatIcon />)}
                                   <Text fontSize="sm" noOfLines={1}>
                                     {event.title}
                                   </Text>
@@ -357,7 +381,11 @@ function App() {
 
           <FormControl>
             <FormLabel>반복 설정</FormLabel>
-            <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
+            <Checkbox isChecked={isRepeating} onChange={
+              (e) => {
+                setIsRepeating(e.target.checked);
+                setRepeatType(e.target.checked ? "daily" : "none");
+            }}>
               반복 일정
             </Checkbox>
           </FormControl>
@@ -381,8 +409,11 @@ function App() {
               <FormControl>
                 <FormLabel>반복 유형</FormLabel>
                 <Select
+                  data-testid="repeat-type"
+                  id="repeat-type"
+                  aria-label="반복 유형"
                   value={repeatType}
-                  onChange={(e) => setRepeatType(e.target.value as RepeatType)}
+                  onChange={handleRepeatTypeChange}
                 >
                   <option value="daily">매일</option>
                   <option value="weekly">매주</option>
@@ -464,6 +495,7 @@ function App() {
                   <VStack align="start">
                     <HStack>
                       {notifiedEvents.includes(event.id) && <BellIcon color="red.500" />}
+                      {(event.repeat.id) && (<RepeatIcon />)}
                       <Text
                         fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
                         color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
@@ -558,7 +590,7 @@ function App() {
                     repeat: {
                       type: isRepeating ? repeatType : 'none',
                       interval: repeatInterval,
-                      endDate: repeatEndDate || undefined,
+                      endDate: repeatEndDate || new Date("2025-06-30T00:00:00+09:00"),
                     },
                     notificationTime,
                   });
