@@ -18,43 +18,6 @@ function filterEventsByDateRange(events: Event[], start: Date, end: Date): Event
   return filteredEvents;
 }
 
-function getRepeatingEventInRange(event: Event, startDate: Date, endDate: Date): Event[] {
-  // const repeatEvents: Event[] = [];
-  // const eventStartDate = new Date(event.date);
-  // let currentDate = new Date(eventStartDate);
-  // const repeatEndDate = event.repeat.endDate ? new Date(event.repeat.endDate) : endDate;
-  //
-  // while (currentDate <= repeatEndDate && currentDate <= endDate) {
-  //   if (currentDate >= startDate) {
-  //     repeatEvents.push({
-  //       ...event,
-  //       date: currentDate.toISOString().split('T')[0],
-  //       id: `${event.id}-${currentDate.toISOString()}`  // 반복 일정의 고유 ID 생성
-  //     });
-  //   }
-  //
-  //   // 반복 타입에 따라 다음 날짜 계산
-  //   switch (event.repeat.type) {
-  //     case 'daily':
-  //       currentDate = new Date(currentDate.setDate(currentDate.getDate() + event.repeat.interval));
-  //       break;
-  //     case 'weekly':
-  //       currentDate = new Date(currentDate.setDate(currentDate.getDate() + (7 * event.repeat.interval)));
-  //       break;
-  //     case 'monthly':
-  //       currentDate = new Date(currentDate.setMonth(currentDate.getMonth() + event.repeat.interval));
-  //       break;
-  //     case 'yearly':
-  //       currentDate = new Date(currentDate.setFullYear(currentDate.getFullYear() + event.repeat.interval));
-  //       break;
-  //   }
-  // }
-  // console.log("이벤트", repeatEvents)
-  
-  // return repeatEvents;
-  return [event];
-}
-
 function searchEvents(events: Event[], term: string) {
   return events.filter(
     ({ title, description, location }) =>
@@ -80,7 +43,6 @@ export function getFilteredEvents(
   view: 'week' | 'month'
 ): Event[] {
   const searchedEvents = searchEvents(events, searchTerm);
-  console.log("검색된 이벤트", searchedEvents)
 
   if (view === 'week') {
     return filterEventsByDateRangeAtWeek(searchedEvents, currentDate);

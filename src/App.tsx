@@ -39,7 +39,7 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
