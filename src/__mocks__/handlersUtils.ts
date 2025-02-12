@@ -16,6 +16,23 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
       newEvent.id = String(mockEvents.length + 1); // 간단한 ID 생성
       mockEvents.push(newEvent);
       return HttpResponse.json(newEvent, { status: 201 });
+    }),
+    // 반복 일정 생성을 위한 핸들러 추가
+    http.post('/api/events-list', async ({ request }) => {
+      const { events: newEvents } = await request.json();
+      const repeatId = String(Date.now()); // 유니크한 repeatId 생성
+      
+      const eventsWithIds = newEvents.map((event: Event, index: number) => ({
+        ...event,
+        id: String(mockEvents.length + index + 1),
+        repeat: {
+          ...event.repeat,
+          id: event.repeat.type !== 'none' ? repeatId : undefined
+        }
+      }));
+      
+      mockEvents.push(...eventsWithIds);
+      return HttpResponse.json(eventsWithIds, { status: 201 });
     })
   );
 };
@@ -85,8 +102,8 @@ export const setupMockHandlerDeletion = () => {
     }),
     http.delete('/api/events/:id', ({ params }) => {
       const { id } = params;
-      const index = mockEvents.findIndex((event) => event.id === id);
-
+      const index = mockEvents.findIndex((event) => event.id == id);
+      console.log("Mock__", mockEvents, index)
       mockEvents.splice(index, 1);
       return new HttpResponse(null, { status: 204 });
     })

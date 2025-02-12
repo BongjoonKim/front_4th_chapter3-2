@@ -173,16 +173,25 @@ function App() {
     
     // 날짜 자동 조정
     if (date && (newRepeatType === 'monthly' || newRepeatType === 'yearly')) {
-      const adjustedDate = adjustRepeatDate(date, newRepeatType);
-      if (adjustedDate !== date) {
+      const { adjustedDate, isLastDay } = adjustRepeatDate(date, newRepeatType);
+      console.log("adjustedDate", adjustedDate, date)
+      let toastMessage;
+      if (adjustedDate !== date || isLastDay) {
         setDate(adjustedDate);
-        toast({
-          title: '날짜 자동 조정',
-          description: '반복 일정의 특성에 맞게 날짜가 조정되었습니다.',
-          status: 'info',
-          duration: 3000,
-          isClosable: true,
-        });
+        
+        // 날짜가 조정된 경우의 메시지
+        toastMessage = '반복 일정의 특성에 맞게 날짜가 조정되었습니다.';
+        // 월말인 경우 추가 메시지
+        if (isLastDay) {
+          toastMessage += ' 매 월/년 마지막 날로 자동 설정됩니다.';
+          toast({
+            title: '날짜 자동 조정',
+            description: toastMessage,
+            status: 'info',
+            duration: 3000,
+            isClosable: true,
+          });
+        }
       }
     }
   };
@@ -223,7 +232,7 @@ function App() {
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
-                            {(event.repeat.id ) && (<RepeatIcon />)}
+                            {(event.repeat.id ) && (<RepeatIcon data-testid={"repeat-icon"}/>)}
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
                             </Text>
@@ -293,7 +302,7 @@ function App() {
                               >
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
-                                  {(event.repeat.id ) && (<RepeatIcon />)}
+                                  {(event.repeat.id ) && (<RepeatIcon data-testid={"repeat-icon"}/>)}
                                   <Text fontSize="sm" noOfLines={1}>
                                     {event.title}
                                   </Text>
@@ -495,7 +504,7 @@ function App() {
                   <VStack align="start">
                     <HStack>
                       {notifiedEvents.includes(event.id) && <BellIcon color="red.500" />}
-                      {(event.repeat.id) && (<RepeatIcon />)}
+                      {(event.repeat.id) && (<RepeatIcon data-testid={"repeat-icon"}/>)}
                       <Text
                         fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
                         color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}

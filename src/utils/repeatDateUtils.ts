@@ -15,7 +15,7 @@ export function getLastDayOfMonth(year: number, month: number): number {
 export function adjustRepeatDate(
   originalDate: string,
   repeatType: 'daily' | 'weekly' | 'monthly' | 'yearly'
-): string {
+): { adjustedDate: string; isLastDay: boolean } {
   const date = new Date(originalDate);
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
@@ -23,7 +23,19 @@ export function adjustRepeatDate(
   
   // daily나 weekly는 조정이 필요 없음
   if (repeatType === 'daily' || repeatType === 'weekly') {
-    return originalDate;
+    return { adjustedDate: originalDate, isLastDay: false };
+  }
+  
+  // 윤년 체크 함수
+  const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  
+  if (repeatType === 'yearly' && month === 2 && day === 29) {
+    // 윤년의 2월 29일인 경우, 다음 해는 2월 28일로 조정
+    const adjustedDate = `${year}-02-28`;
+    return {
+      adjustedDate,
+      isLastDay: true
+    };
   }
   
   // 월말 날짜 확인
@@ -33,11 +45,15 @@ export function adjustRepeatDate(
   if (day >= 29) {
     // 매월/매년 반복시 해당 월의 마지막 날로 조정
     if (repeatType === 'monthly' || repeatType === 'yearly') {
-      return `${year}-${String(month).padStart(2, '0')}-${String(lastDayOfMonth).padStart(2, '0')}`;
+      const adjustedDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDayOfMonth).padStart(2, '0')}`;
+      return {
+        adjustedDate,
+        isLastDay: day === lastDayOfMonth
+      };
     }
   }
   
-  return originalDate;
+  return { adjustedDate: originalDate, isLastDay: false };
 }
 
 export function generateRepeatingEvents(eventData: EventForm): EventForm[] {

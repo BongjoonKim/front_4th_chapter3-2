@@ -110,7 +110,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   
   const deleteEvent = async (id: string) => {
     try {
-      const eventToDelete = events.find(event => event.id === id);
+      const eventToDelete = events.find(event => event.id == id);
       
       if (!eventToDelete) {
         throw new Error('Event not found');
@@ -158,6 +158,11 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   
   useEffect(() => {
     fetchEvents();
+    toast({
+      title: '일정 로딩 완료!',
+      status: 'info',
+      duration: 1000,
+    });
   }, []);
   
   return { events, fetchEvents, saveEvent, deleteEvent };
