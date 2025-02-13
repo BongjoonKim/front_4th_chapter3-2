@@ -4,8 +4,9 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   DeleteIcon,
-  EditIcon, RepeatIcon
-} from "@chakra-ui/icons";
+  EditIcon,
+  RepeatIcon,
+} from '@chakra-ui/icons';
 import {
   Alert,
   AlertDialog,
@@ -56,8 +57,8 @@ import {
   getWeeksAtMonth,
 } from './utils/dateUtils';
 import { findOverlappingEvents } from './utils/eventOverlap';
+import { adjustRepeatDate } from './utils/repeatDateUtils.ts';
 import { getTimeErrorMessage } from './utils/timeValidation';
-import { adjustRepeatDate } from "./utils/repeatDateUtils.ts";
 
 const categories = ['업무', '개인', '가족', '기타'];
 
@@ -103,7 +104,8 @@ function App() {
     handleEndTimeChange,
     resetForm,
     editEvent,
-    tempRepeatInterval, setTempRepeatInterval,
+    tempRepeatInterval,
+    setTempRepeatInterval,
   } = useEventForm();
 
   const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
@@ -130,12 +132,12 @@ function App() {
       });
       return;
     }
-    
+
     // 반복 일정인 경우 종료일 유효성 검사
     if (isRepeating && repeatEndDate) {
       const startDateObj = new Date(date);
       const endDateObj = new Date(repeatEndDate);
-      
+
       if (endDateObj < startDateObj) {
         toast({
           title: '종료일 오류',
@@ -147,7 +149,7 @@ function App() {
         return;
       }
     }
-    
+
     if (startTimeError || endTimeError) {
       toast({
         title: '시간 설정을 확인해주세요.',
@@ -169,7 +171,7 @@ function App() {
       repeat: {
         type: isRepeating ? repeatType : 'none',
         interval: repeatInterval,
-        endDate: repeatEndDate || new Date("2025-06-30T23:59:59+09:00"),
+        endDate: repeatEndDate || new Date('2025-06-30T23:59:59+09:00'),
       },
       notificationTime,
     };
@@ -183,20 +185,20 @@ function App() {
       resetForm();
     }
   };
-  
+
   // RepeatType 선택 관련 부분 수정
   const handleRepeatTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newRepeatType = e.target.value as RepeatType;
     setRepeatType(newRepeatType);
-    
+
     // 날짜 자동 조정
     if (date && (newRepeatType === 'monthly' || newRepeatType === 'yearly')) {
       const { adjustedDate, isLastDay } = adjustRepeatDate(date, newRepeatType);
-      console.log("adjustedDate", adjustedDate, date)
+      console.log('adjustedDate', adjustedDate, date);
       let toastMessage;
       if (adjustedDate !== date || isLastDay) {
         setDate(adjustedDate);
-        
+
         // 날짜가 조정된 경우의 메시지
         toastMessage = '반복 일정의 특성에 맞게 날짜가 조정되었습니다.';
         // 월말인 경우 추가 메시지
@@ -250,7 +252,7 @@ function App() {
                         >
                           <HStack spacing={1}>
                             {isNotified && <BellIcon />}
-                            {(event.repeat.id ) && (<RepeatIcon data-testid={"repeat-icon"}/>)}
+                            {event.repeat.id && <RepeatIcon data-testid={'repeat-icon'} />}
                             <Text fontSize="sm" noOfLines={1}>
                               {event.title}
                             </Text>
@@ -320,7 +322,7 @@ function App() {
                               >
                                 <HStack spacing={1}>
                                   {isNotified && <BellIcon />}
-                                  {(event.repeat.id ) && (<RepeatIcon data-testid={"repeat-icon"}/>)}
+                                  {event.repeat.id && <RepeatIcon data-testid={'repeat-icon'} />}
                                   <Text fontSize="sm" noOfLines={1}>
                                     {event.title}
                                   </Text>
@@ -408,11 +410,13 @@ function App() {
 
           <FormControl>
             <FormLabel>반복 설정</FormLabel>
-            <Checkbox isChecked={isRepeating} onChange={
-              (e) => {
+            <Checkbox
+              isChecked={isRepeating}
+              onChange={(e) => {
                 setIsRepeating(e.target.checked);
-                setRepeatType(e.target.checked ? "daily" : "none");
-            }}>
+                setRepeatType(e.target.checked ? 'daily' : 'none');
+              }}
+            >
               반복 일정
             </Checkbox>
           </FormControl>
@@ -457,7 +461,7 @@ function App() {
                     onChange={(e) => {
                       const inputValue = e.target.value;
                       setTempRepeatInterval(inputValue);
-                      
+
                       const numberValue = Number(inputValue);
                       if (!isNaN(numberValue) && numberValue >= 1) {
                         setRepeatInterval(numberValue);
@@ -474,7 +478,7 @@ function App() {
                           status: 'error',
                           duration: 3000,
                           isClosable: true,
-                          role: 'status'  // role 추가
+                          role: 'status', // role 추가
                         });
                       }
                     }}
@@ -546,7 +550,7 @@ function App() {
                   <VStack align="start">
                     <HStack>
                       {notifiedEvents.includes(event.id) && <BellIcon color="red.500" />}
-                      {(event.repeat.id) && (<RepeatIcon data-testid={"repeat-icon"}/>)}
+                      {event.repeat.id && <RepeatIcon data-testid={'repeat-icon'} />}
                       <Text
                         fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
                         color={notifiedEvents.includes(event.id) ? 'red.500' : 'inherit'}
@@ -641,7 +645,7 @@ function App() {
                     repeat: {
                       type: isRepeating ? repeatType : 'none',
                       interval: repeatInterval,
-                      endDate: repeatEndDate || new Date("2025-06-30T23:59:59+09:00"),
+                      endDate: repeatEndDate || new Date('2025-06-30T23:59:59+09:00'),
                     },
                     notificationTime,
                   });

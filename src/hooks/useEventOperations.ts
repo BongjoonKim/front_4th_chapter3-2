@@ -1,13 +1,14 @@
 // src/hooks/useEventOperations.ts
 import { useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+
 import { Event, EventForm } from '../types';
-import { generateRepeatingEvents } from "../utils/repeatDateUtils.ts";
+import { generateRepeatingEvents } from '../utils/repeatDateUtils.ts';
 
 export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const [events, setEvents] = useState<Event[]>([]);
   const toast = useToast();
-  
+
   const fetchEvents = async () => {
     try {
       const response = await fetch('/api/events');
@@ -26,22 +27,22 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       });
     }
   };
-  
+
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
       let response;
-      
+
       if (editing) {
-        const existingEvent = events.find(e => e.id === (eventData as Event).id);
-        
+        const existingEvent = events.find((e) => e.id === (eventData as Event).id);
+
         // 1. 기존에 반복 일정이었으나 수정하는 경우 (단일 일정으로 변경)
         if (existingEvent?.repeat?.id) {
           // repeat 관련 정보 제거 (단일 일정으로 변경)
           const singleEventData = {
             ...eventData,
-            repeat: { type: 'none', interval: 1 }
+            repeat: { type: 'none', interval: 1 },
           };
-          
+
           response = await fetch(`/api/events/${(eventData as Event).id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -84,11 +85,11 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
           });
         }
       }
-      
+
       if (!response.ok) {
         throw new Error('Failed to save event');
       }
-      
+
       await fetchEvents();
       onSave?.();
       toast({
@@ -107,37 +108,37 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       });
     }
   };
-  
+
   const deleteEvent = async (id: string) => {
     try {
-      const eventToDelete = events.find(event => event.id === id);
-      
+      const eventToDelete = events.find((event) => event.id === id);
+
       if (!eventToDelete) {
         throw new Error('Event not found');
       }
-      
+
       let response;
-      
+
       // 반복 일정인 경우
       if (eventToDelete.repeat && eventToDelete.repeat.type !== 'none') {
         response = await fetch('/api/events-list', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            eventIds: [eventToDelete.id]  // 해당 일정의 id만 전달
+            eventIds: [eventToDelete.id], // 해당 일정의 id만 전달
           }),
         });
       } else {
         // 일반 일정인 경우
         response = await fetch(`/api/events/${id}`, {
-          method: 'DELETE'
+          method: 'DELETE',
         });
       }
-      
+
       if (!response.ok) {
         throw new Error('Failed to delete event');
       }
-      
+
       await fetchEvents();
       toast({
         title: '일정이 삭제되었습니다.',
@@ -155,7 +156,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       });
     }
   };
-  
+
   useEffect(() => {
     fetchEvents();
     toast({
@@ -164,6 +165,6 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       duration: 1000,
     });
   }, []);
-  
+
   return { events, fetchEvents, saveEvent, deleteEvent };
 };
