@@ -97,24 +97,24 @@ it("새로 정의된 'title', 'endTime' 기준으로 적절하게 일정이 업�
 
 it('존재하는 이벤트 삭제 시 에러없이 아이템이 삭제된다.', async () => {
   setupMockHandlerDeletion();
-  
+
   const { result } = renderHook(() => useEventOperations(false));
-  
+
   // 초기 데이터 로딩 대기
   await act(async () => {
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
-  
+
   // 삭제 실행
   await act(async () => {
     await result.current.deleteEvent('1');
   });
-  
+
   // 상태 업데이트 대기
   await act(async () => {
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
-  
+
   // 최종 상태 확인
   expect(result.current.events).toHaveLength(0);
 });
@@ -178,10 +178,10 @@ it("네트워크 오류 시 '일정 삭제 실패'라는 텍스트가 노출되�
   );
 
   const { result } = renderHook(() => useEventOperations(false));
-  
+
   // 초기 데이터 로딩 대기
   await act(async () => {
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
   await act(() => Promise.resolve(null));
@@ -189,10 +189,10 @@ it("네트워크 오류 시 '일정 삭제 실패'라는 텍스트가 노출되�
   await act(async () => {
     await result.current.deleteEvent('1');
   });
-  
+
   // 상태 업데이트 대기
   await act(async () => {
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
   expect(toastFn).toHaveBeenCalledWith({
