@@ -18,9 +18,11 @@ export const useEventForm = (initialEvent?: Event) => {
   const [repeatInterval, setRepeatInterval] = useState(initialEvent?.repeat.interval || 1);
   const [repeatEndDate, setRepeatEndDate] = useState(initialEvent?.repeat.endDate || '');
   const [notificationTime, setNotificationTime] = useState(initialEvent?.notificationTime || 10);
-  const [tempRepeatInterval, setTempRepeatInterval] = useState(String(initialEvent?.repeat.interval || 1));
+  const [tempRepeatInterval, setTempRepeatInterval] = useState(
+    String(initialEvent?.repeat.interval || 1)
+  );
 
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [editingEvent, setEditingEvent] = useState<Event | null | undefined>(null);
 
   const [{ startTimeError, endTimeError }, setTimeError] = useState<TimeErrorRecord>({
     startTimeError: null,
@@ -105,6 +107,7 @@ export const useEventForm = (initialEvent?: Event) => {
     handleEndTimeChange,
     resetForm,
     editEvent,
-    tempRepeatInterval, setTempRepeatInterval,
+    tempRepeatInterval,
+    setTempRepeatInterval,
   };
 };
