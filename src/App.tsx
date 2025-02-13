@@ -103,6 +103,7 @@ function App() {
     handleEndTimeChange,
     resetForm,
     editEvent,
+    tempRepeatInterval, setTempRepeatInterval,
   } = useEventForm();
 
   const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
@@ -129,7 +130,24 @@ function App() {
       });
       return;
     }
-
+    
+    // 반복 일정인 경우 종료일 유효성 검사
+    if (isRepeating && repeatEndDate) {
+      const startDateObj = new Date(date);
+      const endDateObj = new Date(repeatEndDate);
+      
+      if (endDateObj < startDateObj) {
+        toast({
+          title: '종료일 오류',
+          description: '종료일은 시작일 이후여야 합니다.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+    }
+    
     if (startTimeError || endTimeError) {
       toast({
         title: '시간 설정을 확인해주세요.',
@@ -151,7 +169,7 @@ function App() {
       repeat: {
         type: isRepeating ? repeatType : 'none',
         interval: repeatInterval,
-        endDate: repeatEndDate || new Date("2025-06-30T00:00:00+09:00"),
+        endDate: repeatEndDate || new Date("2025-06-30T23:59:59+09:00"),
       },
       notificationTime,
     };
@@ -435,9 +453,33 @@ function App() {
                   <FormLabel>반복 간격</FormLabel>
                   <Input
                     type="number"
-                    value={repeatInterval}
-                    onChange={(e) => setRepeatInterval(Number(e.target.value))}
+                    value={tempRepeatInterval}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      setTempRepeatInterval(inputValue);
+                      
+                      const numberValue = Number(inputValue);
+                      if (!isNaN(numberValue) && numberValue >= 1) {
+                        setRepeatInterval(numberValue);
+                      }
+                    }}
+                    onBlur={() => {
+                      const value = Number(tempRepeatInterval);
+                      if (isNaN(value) || value < 1) {
+                        setTempRepeatInterval('1');
+                        setRepeatInterval(1);
+                        toast({
+                          title: '유효하지 않은 반복 간격',
+                          description: '반복 간격은 1 이상이어야 합니다.',
+                          status: 'error',
+                          duration: 3000,
+                          isClosable: true,
+                          role: 'status'  // role 추가
+                        });
+                      }
+                    }}
                     min={1}
+                    isInvalid={Number(tempRepeatInterval) < 1}
                   />
                 </FormControl>
                 <FormControl>
@@ -599,7 +641,7 @@ function App() {
                     repeat: {
                       type: isRepeating ? repeatType : 'none',
                       interval: repeatInterval,
-                      endDate: repeatEndDate || new Date("2025-06-30T00:00:00+09:00"),
+                      endDate: repeatEndDate || new Date("2025-06-30T23:59:59+09:00"),
                     },
                     notificationTime,
                   });

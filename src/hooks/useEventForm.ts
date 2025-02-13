@@ -18,6 +18,7 @@ export const useEventForm = (initialEvent?: Event) => {
   const [repeatInterval, setRepeatInterval] = useState(initialEvent?.repeat.interval || 1);
   const [repeatEndDate, setRepeatEndDate] = useState(initialEvent?.repeat.endDate || '');
   const [notificationTime, setNotificationTime] = useState(initialEvent?.notificationTime || 10);
+  const [tempRepeatInterval, setTempRepeatInterval] = useState(String(initialEvent?.repeat.interval || 1));
 
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
@@ -48,9 +49,10 @@ export const useEventForm = (initialEvent?: Event) => {
     setCategory('');
     setIsRepeating(false);
     setRepeatType('none');
-    setRepeatInterval(1);
     setRepeatEndDate('');
     setNotificationTime(10);
+    setRepeatInterval(1);
+    setTempRepeatInterval('1');
   };
 
   const editEvent = (event: Event) => {
@@ -64,9 +66,10 @@ export const useEventForm = (initialEvent?: Event) => {
     setCategory(event.category);
     setIsRepeating(event.repeat.type !== 'none');
     setRepeatType(event.repeat.type);
-    setRepeatInterval(event.repeat.interval);
     setRepeatEndDate(event.repeat.endDate || '');
     setNotificationTime(event.notificationTime);
+    setRepeatInterval(event.repeat.interval);
+    setTempRepeatInterval(String(event.repeat.interval));
   };
 
   return {
@@ -102,5 +105,6 @@ export const useEventForm = (initialEvent?: Event) => {
     handleEndTimeChange,
     resetForm,
     editEvent,
+    tempRepeatInterval, setTempRepeatInterval,
   };
 };

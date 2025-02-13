@@ -1,12 +1,12 @@
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { ChakraProvider } from '@chakra-ui/react';
-import App from "../App.tsx";
+import App from "../../App.tsx";
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
-import { adjustRepeatDate } from "../utils/repeatDateUtils.ts";
-import { setupMockHandlerCreation } from "../__mocks__/handlersUtils.ts";
+import { adjustRepeatDate } from "../../utils/repeatDateUtils.ts";
+import { setupMockHandlerCreation } from "../../__mocks__/handlersUtils.ts";
 
-
+// src/__tests__/repeat/medium.repeat.spec.tsx
 describe('반복 일정 선택 기능', () => {
   beforeEach(() => {
     render(
@@ -180,6 +180,78 @@ describe('반복 일정 선택 기능', () => {
       const { findAllByText } = within(eventList);
       const eventTitles = await findAllByText(/매일 반복/i);
       expect(eventTitles).toHaveLength(3);
+    });
+    
+    it('매주 반복되는 일정이 올바르게 생성된다', async () => {
+      setupMockHandlerCreation();
+      const user = userEvent.setup();
+      
+      await fillEventForm(user, {
+        title: '매주 반복 테스트',
+        date: '2024-10-01',
+        startTime: '09:00',
+        endTime: '10:00',
+        repeatType: 'weekly',
+        repeatInterval: '1',
+        repeatEndDate: '2024-10-22'  // 4주 후
+      });
+      
+      const submitButton = screen.getByTestId('event-submit-button');
+      await user.click(submitButton);
+      
+      // 이벤트 리스트에서 생성된 일정 확인
+      const eventList = screen.getByTestId('event-list');
+      const { findAllByText } = within(eventList);
+      const eventTitles = await findAllByText(/매주 반복/i);
+      expect(eventTitles).toHaveLength(4); // 4주치 일정이 생성되어야 함
+    });
+    
+    it('매월 반복되는 일정이 올바르게 생성된다', async () => {
+      setupMockHandlerCreation();
+      const user = userEvent.setup();
+      
+      await fillEventForm(user, {
+        title: '매월 반복 테스트',
+        date: '2024-10-16',
+        startTime: '09:00',
+        endTime: '10:00',
+        repeatType: 'monthly',
+        repeatInterval: '1',
+        repeatEndDate: '2024-12-15'  // 3개월 후
+      });
+      
+      const submitButton = screen.getByTestId('event-submit-button');
+      await user.click(submitButton);
+      
+      // 이벤트 리스트에서 생성된 일정 확인
+      const eventList = screen.getByTestId('event-list');
+      const { findAllByText } = within(eventList);
+      const eventTitles = await findAllByText(/1월마다/i);
+      expect(eventTitles).toHaveLength(1);
+    });
+    
+    it('매년 반복되는 일정이 올바르게 생성된다', async () => {
+      setupMockHandlerCreation();
+      const user = userEvent.setup();
+      
+      await fillEventForm(user, {
+        title: '매년 반복 테스트',
+        date: '2024-10-17',
+        startTime: '09:00',
+        endTime: '10:00',
+        repeatType: 'yearly',
+        repeatInterval: '1',
+        repeatEndDate: '2026-10-15'  // 3년 후
+      });
+      
+      const submitButton = screen.getByTestId('event-submit-button');
+      await user.click(submitButton);
+      
+      // 이벤트 리스트에서 생성된 일정 확인
+      const eventList = screen.getByTestId('event-list');
+      const { findAllByText } = within(eventList);
+      const eventTitles = await findAllByText(/1년마다/i);
+      expect(eventTitles).toHaveLength(1);
     });
   });
   

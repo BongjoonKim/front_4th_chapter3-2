@@ -5,7 +5,7 @@ import { Event } from '../types';
 
 // ! Hard 여기 제공 안함
 export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
-  const mockEvents: Event[] = [...initEvents];
+  let mockEvents: Event[] = [...initEvents];
 
   server.use(
     http.get('/api/events', () => {
@@ -33,6 +33,18 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
       
       mockEvents.push(...eventsWithIds);
       return HttpResponse.json(eventsWithIds, { status: 201 });
+    }),
+  http.delete('/api/events/:id', ({ params }) => {
+    const { id } = params;
+    const index = mockEvents.findIndex((event) => event.id == id);
+    mockEvents.splice(index, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+    // 반복 이벤트 삭제
+    http.delete('/api/events-list', async ({ request }) => {
+      const { eventIds } = await request.json() as { eventIds: string[] };
+      mockEvents = mockEvents.filter(event => !eventIds.includes(event.id));
+      return new HttpResponse(null, { status: 204 });
     })
   );
 };
@@ -81,7 +93,7 @@ export const setupMockHandlerUpdating = () => {
 };
 
 export const setupMockHandlerDeletion = () => {
-  const mockEvents: Event[] = [
+  let mockEvents: Event[] = [
     {
       id: '1',
       title: '삭제할 이벤트',
@@ -103,8 +115,13 @@ export const setupMockHandlerDeletion = () => {
     http.delete('/api/events/:id', ({ params }) => {
       const { id } = params;
       const index = mockEvents.findIndex((event) => event.id == id);
-      console.log("Mock__", mockEvents, index)
       mockEvents.splice(index, 1);
+      return new HttpResponse(null, { status: 204 });
+    }),
+    // 반복 이벤트 삭제
+    http.delete('/api/events-list', async ({ request }) => {
+      const { eventIds } = await request.json() as { eventIds: string[] };
+      mockEvents = mockEvents.filter(event => !eventIds.includes(event.id));
       return new HttpResponse(null, { status: 204 });
     })
   );

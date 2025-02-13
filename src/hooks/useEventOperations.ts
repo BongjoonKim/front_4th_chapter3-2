@@ -110,7 +110,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   
   const deleteEvent = async (id: string) => {
     try {
-      const eventToDelete = events.find(event => event.id == id);
+      const eventToDelete = events.find(event => event.id === id);
       
       if (!eventToDelete) {
         throw new Error('Event not found');
@@ -124,7 +124,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            eventIds: [eventToDelete.id]
+            eventIds: [eventToDelete.id]  // 해당 일정의 id만 전달
           }),
         });
       } else {
