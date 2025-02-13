@@ -7,14 +7,14 @@ function containsTerm(target: string, term: string) {
 
 function filterEventsByDateRange(events: Event[], start: Date, end: Date): Event[] {
   const filteredEvents: Event[] = [];
-  
-  events.forEach(event => {
+
+  events.forEach((event) => {
     const eventDate = new Date(event.date);
-      if (isDateInRange(eventDate, start, end)) {
-        filteredEvents.push(event);
-      }
+    if (isDateInRange(eventDate, start, end)) {
+      filteredEvents.push(event);
+    }
   });
-  
+
   return filteredEvents;
 }
 
@@ -32,7 +32,15 @@ function filterEventsByDateRangeAtWeek(events: Event[], currentDate: Date) {
 
 function filterEventsByDateRangeAtMonth(events: Event[], currentDate: Date) {
   const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1, 0, 0, 0, 0);
-  const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 99);
+  const monthEnd = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    99
+  );
   return filterEventsByDateRange(events, monthStart, monthEnd);
 }
 

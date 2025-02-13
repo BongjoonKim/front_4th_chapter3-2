@@ -21,29 +21,29 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
     http.post('/api/events-list', async ({ request }) => {
       const { events: newEvents } = await request.json();
       const repeatId = String(Date.now()); // 유니크한 repeatId 생성
-      
+
       const eventsWithIds = newEvents.map((event: Event, index: number) => ({
         ...event,
         id: String(mockEvents.length + index + 1),
         repeat: {
           ...event.repeat,
-          id: event.repeat.type !== 'none' ? repeatId : undefined
-        }
+          id: event.repeat.type !== 'none' ? repeatId : undefined,
+        },
       }));
-      
+
       mockEvents.push(...eventsWithIds);
       return HttpResponse.json(eventsWithIds, { status: 201 });
     }),
-  http.delete('/api/events/:id', ({ params }) => {
-    const { id } = params;
-    const index = mockEvents.findIndex((event) => event.id == id);
-    mockEvents.splice(index, 1);
-    return new HttpResponse(null, { status: 204 });
-  }),
+    http.delete('/api/events/:id', ({ params }) => {
+      const { id } = params;
+      const index = mockEvents.findIndex((event) => event.id == id);
+      mockEvents.splice(index, 1);
+      return new HttpResponse(null, { status: 204 });
+    }),
     // 반복 이벤트 삭제
     http.delete('/api/events-list', async ({ request }) => {
-      const { eventIds } = await request.json() as { eventIds: string[] };
-      mockEvents = mockEvents.filter(event => !eventIds.includes(event.id));
+      const { eventIds } = (await request.json()) as { eventIds: string[] };
+      mockEvents = mockEvents.filter((event) => !eventIds.includes(event.id));
       return new HttpResponse(null, { status: 204 });
     })
   );
@@ -120,8 +120,8 @@ export const setupMockHandlerDeletion = () => {
     }),
     // 반복 이벤트 삭제
     http.delete('/api/events-list', async ({ request }) => {
-      const { eventIds } = await request.json() as { eventIds: string[] };
-      mockEvents = mockEvents.filter(event => !eventIds.includes(event.id));
+      const { eventIds } = (await request.json()) as { eventIds: string[] };
+      mockEvents = mockEvents.filter((event) => !eventIds.includes(event.id));
       return new HttpResponse(null, { status: 204 });
     })
   );

@@ -40,7 +40,7 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
-import { useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
@@ -118,7 +118,7 @@ function App() {
 
   const [isOverlapDialogOpen, setIsOverlapDialogOpen] = useState(false);
   const [overlappingEvents, setOverlappingEvents] = useState<Event[]>([]);
-  const cancelRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement | null>(null);
 
   const toast = useToast();
 
@@ -187,7 +187,7 @@ function App() {
   };
 
   // RepeatType 선택 관련 부분 수정
-  const handleRepeatTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleRepeatTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newRepeatType = e.target.value as RepeatType;
     setRepeatType(newRepeatType);
 
